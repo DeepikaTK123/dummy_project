@@ -1,0 +1,41 @@
+version: '3.8'  # Use a supported version
+
+services:
+  frontend:
+    build:
+      context: ./frontend  # Path to the frontend Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+  
+  backend:
+    build:
+      context: ./backend  # Path to the backend Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - /opt/homebrew/etc/nginx/nginx.conf:/etc/nginx/nginx.conf  # Mount the nginx config file
+    ports:
+      - "80:80"  # Map host port 80 to container port 80
+    restart: always
+
+  db:
+    image: postgres:13  # Use a specific version for stability
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password  # Change this to a strong password
+      POSTGRES_DB: sample_database
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  db_data:  # Define a named volume for persistent database storage
